@@ -32,7 +32,7 @@ fn handle_client(stream: TcpStream) -> io::Result<()> {
 }
 
 fn main() -> io::Result<()> {
-    let ip = "127.0.0.1:7878";
+    let ip = "0.0.0.0:7878";
     let listener = TcpListener::bind(ip).expect("Could not bind to address");
     println!("Echo server running on {}", ip);
 

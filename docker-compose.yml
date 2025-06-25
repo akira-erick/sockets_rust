@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    ports:
+      - "7878:7878"
+    networks:
+      - echo_network
+    restart: on-failure
+
+  client:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    environment:
+      SERVER_ADDR: server:7878
+    networks:
+      - echo_network
+    depends_on:
+      - server
+    stdin_open: true
+    tty: true
+
+networks:
+  echo_network:
+    driver: bridge
