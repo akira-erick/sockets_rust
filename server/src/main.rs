@@ -1,21 +1,32 @@
-use std::io::{self, Read, Write};
+use std::io::{self, BufReader, BufRead, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 
-fn handle_client(mut stream: TcpStream) -> io::Result<()> {
+fn handle_client(stream: TcpStream) -> io::Result<()> {
     let peer_addr = stream.peer_addr()?;
     println!("Client connected: {}", peer_addr);
 
-    let mut buffer = [0; 1024];
+    let mut reader = BufReader::new(stream.try_clone()?);
+    let mut writer = stream;
+
     loop {
-        let bytes_read = stream.read(&mut buffer)?;
+        let mut line = String::new();
+        let bytes_read = reader.read_line(&mut line)?;
+
         if bytes_read == 0 {
             println!("Client disconnected: {}", peer_addr);
             break;
         }
 
-        stream.write_all(&buffer[..bytes_read])?;
-        println!("Echoed {} bytes back to {}", bytes_read, peer_addr);
+        let trimmed_line = line.trim_end();
+        println!("Received from {}: {}", peer_addr, trimmed_line);
+
+        let response = format!("{}\n", trimmed_line);
+
+        writer.write_all(response.as_bytes())?;
+        writer.flush()?;
+
+        println!("Echoed {} bytes back to {}", response.len(), peer_addr);
     }
     Ok(())
 }
@@ -23,7 +34,7 @@ fn handle_client(mut stream: TcpStream) -> io::Result<()> {
 fn main() -> io::Result<()> {
     let ip = "127.0.0.1:7878";
     let listener = TcpListener::bind(ip).expect("Could not bind to address");
-    println!("Echo server rinning on {}", ip);
+    println!("Echo server running on {}", ip);
 
     for stream in listener.incoming() {
         match stream {

@@ -42,7 +42,7 @@ fn main() -> io::Result<()> {
         } else {
             let response = str::from_utf8(&buffer[0..bytes_read])
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-            println!("Server response: {}", response);
+            print!("Server response: {}", response);
         }
     }
     println!("Client finished.");
