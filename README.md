@@ -1,6 +1,7 @@
 # Sockets in Rust
 
 A simple implementation of socket programming in rust.
+The messages sent via client side will be echoed from the server side.
 
 ## Tech Stack
 - **Server:** Rust
